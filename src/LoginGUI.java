@@ -108,6 +108,7 @@ public class LoginGUI extends JFrame
 		public void mouseClicked(MouseEvent e)
 		{
 			lblInfo.setText("Connecting...");
+			ClientGUI clientGui = new ClientGUI();
 		}
 	}
 	
