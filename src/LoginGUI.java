@@ -1,4 +1,3 @@
-package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
@@ -108,7 +107,7 @@ public class LoginGUI extends JFrame
 		public void mouseClicked(MouseEvent e)
 		{
 			lblInfo.setText("Connecting...");
-			ClientGUI clientGui = new ClientGUI();
+			//ClientGUI clientGui = new ClientGUI();
 		}
 	}
 	
