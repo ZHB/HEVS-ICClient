@@ -1,31 +1,21 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
+import java.security.NoSuchAlgorithmException;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
+
+import security.Security;
 
 
 public class ICClient {
@@ -34,17 +24,29 @@ public class ICClient {
 
     private PrintWriter outputToServer;
     private BufferedReader inputFromServer;
+    
+    private ObjectOutputStream outputObjectToServer = null;
+    private ObjectInputStream inputObjectFromServer = null;
       
     byte[] serverIP = {127, 0, 0, 1};
    
     
     public ICClient() {
         try {
-			
+        	 ChatGUI clientGUI = new ChatGUI();
+             clientGUI.addObserver(new ClientNotification());
+         
+
+             clientGUI.setVisible(true);
+             clientGUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+             clientGUI.pack(); 
+             
             //serverSocket = new Socket("127.0.0.1", 1087);
 
             InetAddress serverAddress = InetAddress.getByAddress("",serverIP);
-            serverSocket = new Socket(serverAddress, 1089);
+            serverSocket = new Socket(serverAddress, 1096);
+            
+           
 
             Thread inOutThread = new Thread(new InOutClient());
             inOutThread.start();
@@ -54,18 +56,8 @@ public class ICClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         
-        //LoginGUI gui = new LoginGUI();
         
-        //gui.addObserver(new ClientNotification());
-              
-        
-        JFrame client = new ChatGUI();
-		
-        client.setVisible(true);
-        client.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        client.pack(); 
 
     }
 
@@ -80,6 +72,12 @@ public class ICClient {
             try {
                 outputToServer = new PrintWriter(serverSocket.getOutputStream());
                 inputFromServer = new BufferedReader( new InputStreamReader(serverSocket.getInputStream()));
+                
+                
+                outputObjectToServer = new ObjectOutputStream(serverSocket.getOutputStream());
+                outputObjectToServer.flush();
+                inputObjectFromServer = new ObjectInputStream(serverSocket.getInputStream());
+                
                 //ObjectInputStream objectInputStream = new ObjectInputStream(serverSocket.getInputStream());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -92,6 +90,26 @@ public class ICClient {
 
             try 
             {
+            	boolean done = false;
+				
+				byte messageType;
+				
+				while(!done) 
+				{
+            		messageType = inputObjectFromServer.readByte();
+            		
+            		switch(messageType) {
+            		case 50:
+            			System.out.println(inputObjectFromServer.readUTF());
+            			break;
+        			case 51:
+        				System.out.println(inputObjectFromServer.readUTF());
+            			break;
+            		default:
+            			done = true;
+            		}
+            	}
+            	
                 String line;
 
                 while ((line = inputFromServer.readLine()) != null)
@@ -109,6 +127,10 @@ public class ICClient {
                 System.out.println("While end");
                 inputFromServer.close();
                 outputToServer.close();
+                
+                outputObjectToServer.close();
+                inputObjectFromServer.close();
+                
                 serverSocket.close();
 
             } catch (IOException ex) {
@@ -122,8 +144,7 @@ public class ICClient {
 
 		@Override
 		public void notifyMessage(String m) {
-			System.out.println("Classe ICClient notifié de l'envoi de message");
-			
+			System.out.println("Classe ICClient notifié de l'envoi de message");	
 		}
 
 		@Override
@@ -131,17 +152,41 @@ public class ICClient {
 			System.out.println("Classe ICClient notifié du login de " + login + " + " + pwd);
 			
 			// vérifier existsance login dans le système
+			outputToServer.println();
 			
 			// si login n'existe pas, renvoyer message
 			
 			// si existe, crypter mot de passe et vérifier par rapport à la BDD
 			
 			// si OK, ouvrir la fenêtre de chat
+			
+			// charger la liste des clients
+			
 		}
 
 		@Override
-		public void notifyRegistration() {
-			System.out.println("Classe ICClient notifiée de l'inscription");
+		public void register(String login, String pwd) {
+			try 
+			{
+				Security sec = new Security();
+				sec.hashWithSha256(pwd);
+
+				// send data to the server
+				outputObjectToServer.writeByte(1);
+				outputObjectToServer.writeUTF(login.trim());
+				outputObjectToServer.writeUTF(sec.hashWithSha256(pwd));
+				outputObjectToServer.flush();
+				
+			} 
+			catch (NoSuchAlgorithmException e1) 
+			{
+				e1.printStackTrace();
+			} 
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
+			
 			
 			// vérifier que l'utilisateur n'existe pas déjà
 			

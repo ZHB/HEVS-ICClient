@@ -5,6 +5,6 @@ public interface ClientObserver {
 	
 	public void login(String login, String pwd);
 	
-	public void notifyRegistration();
+	public void register(String login, String pwd);
 	
 }

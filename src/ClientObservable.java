@@ -7,6 +7,6 @@ public interface ClientObservable {
 	
 	public void notifyLogin(String login, String pwd);
 	
-	public void notifyRegistration();
+	public void notifyRegistration(String login, String pwd);
 	
 }

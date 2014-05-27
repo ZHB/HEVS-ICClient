@@ -3,6 +3,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Array;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -19,10 +26,14 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 
-public class ChatGUI extends JFrame {
+public class ChatGUI extends JFrame implements ClientObservable {
 	
 	  private JTextArea txtarea;
 	  private JTextField inputTextField;
+	  private ArrayList<ClientObserver> observers = new ArrayList<ClientObserver>();
+	  
+	  private JPasswordField txPassword = new JPasswordField(10);
+	  private JTextField txtLogin = new JTextField(15);
 	  
 	  public ChatGUI() {
 		  this.buildGUI();
@@ -37,28 +48,30 @@ public class ChatGUI extends JFrame {
         JLabel lblPassword = new JLabel("Password");
         lblPassword.setForeground(Color.white);
         
-        JTextField txfUserWest = new JTextField(15);
-        txfUserWest.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+
+        txtLogin.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         
-        txfUserWest.setBorder(BorderFactory.createCompoundBorder(
-        		txfUserWest.getBorder(), 
+        txtLogin.setBorder(BorderFactory.createCompoundBorder(
+        		txtLogin.getBorder(), 
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         
-        JPasswordField txfPwdWest = new JPasswordField(10);
-		txfPwdWest.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-		txfPwdWest.setBorder(BorderFactory.createCompoundBorder(
-				txfPwdWest.getBorder(), 
+       
+		txPassword.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+		txPassword.setBorder(BorderFactory.createCompoundBorder(
+				txPassword.getBorder(), 
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 		 
 		JButton btnConnectWest = new JButton("Connect");
 		btnConnectWest.setBorderPainted(false);
 		btnConnectWest.setFocusPainted(false);
 		btnConnectWest.setBackground(Color.WHITE);
+		btnConnectWest.addMouseListener(new LoginAction());
 		
 		JButton btnRegisterEast = new JButton("Register");
 		btnRegisterEast.setBorderPainted(false);
 		btnRegisterEast.setFocusPainted(false);
 		btnRegisterEast.setBackground(Color.WHITE);
+		btnRegisterEast.addMouseListener(new RegisterAction());
         
         JPanel pnlNorth = new JPanel();
         pnlNorth.setLayout(new BoxLayout(pnlNorth, BoxLayout.X_AXIS));
@@ -66,12 +79,12 @@ public class ChatGUI extends JFrame {
 
         pnlNorth.add(lblLogin);
         pnlNorth.add(Box.createHorizontalStrut(5));
-        pnlNorth.add(txfUserWest);
+        pnlNorth.add(txtLogin);
         
         pnlNorth.add(Box.createHorizontalStrut(10));
         pnlNorth.add(lblPassword);
         pnlNorth.add(Box.createHorizontalStrut(5));
-        pnlNorth.add(txfPwdWest);
+        pnlNorth.add(txPassword);
         
         pnlNorth.add(Box.createHorizontalStrut(10));
         pnlNorth.add(btnConnectWest);
@@ -172,4 +185,61 @@ public class ChatGUI extends JFrame {
          inputTextField.addActionListener(sendListener);
          sendButton.addActionListener(sendListener);
     }
+	  
+	/**
+	 * Action performed when a user click the login button
+	 * 
+	 * @author Vince
+	 *
+	 */
+	private class LoginAction extends MouseAdapter
+	{
+		public void mouseClicked(MouseEvent e)
+		{
+			// get login/password values and notify the Server class
+			notifyLogin(txtLogin.getText(), txPassword.getText());
+		}
+	}
+	
+	/**
+	 * Action performed when a user click the register button
+	 * 
+	 * @author Vince
+	 *
+	 */
+	private class RegisterAction extends MouseAdapter
+	{
+		public void mouseClicked(MouseEvent e)
+		{
+			// get login/password values and notify the Server class
+			notifyRegistration(txtLogin.getText(), txPassword.getText());
+		}
+	}
+
+	@Override
+	public void addObserver(ClientObserver obs) {
+		observers.add(obs);
+	}
+
+	@Override
+	public void removeObserver(ClientObserver obs) {
+		observers.remove(obs);
+	}
+
+	@Override
+	public void notifyLogin(String login, String pwd) 
+	{
+		for(ClientObserver obs : observers) 
+		{
+			obs.login(login, pwd);
+		}
+	}
+
+	@Override
+	public void notifyRegistration(String login, String pwd) {
+		for(ClientObserver obs : observers) 
+		{
+			obs.register(login, pwd);
+		}
+	}
 }
