@@ -23,6 +23,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 
@@ -37,6 +38,17 @@ public class ChatGUI extends JFrame implements ClientObservable {
 	  
 	  public ChatGUI() {
 		  this.buildGUI();
+	  }
+	  
+	  public void setTextarea(String string) {
+		  final Object finalArg = string;
+
+          SwingUtilities.invokeLater(new Runnable() {
+	           public void run() {
+	               txtarea.append(finalArg.toString());
+	               txtarea.append("\n");
+	           }
+	       });
 	  }
 
 	  private void buildGUI() {

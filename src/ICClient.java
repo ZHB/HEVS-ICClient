@@ -11,10 +11,12 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import GUI.ClientGUI;
 import security.Security;
 
 
@@ -29,26 +31,28 @@ public class ICClient {
     private ObjectInputStream inputObjectFromServer = null;
       
     byte[] serverIP = {127, 0, 0, 1};
+    
+    private ChatGUI clientGUI;
    
     
     public ICClient() {
-        try {
-        	 ChatGUI clientGUI = new ChatGUI();
-             clientGUI.addObserver(new ClientNotification());
-         
-
-             clientGUI.setVisible(true);
-             clientGUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-             clientGUI.pack(); 
-             
+        try 
+        {
             //serverSocket = new Socket("127.0.0.1", 1087);
 
             InetAddress serverAddress = InetAddress.getByAddress("",serverIP);
             serverSocket = new Socket(serverAddress, 1096);
             
-           
+            clientGUI = new ChatGUI();
+            clientGUI.addObserver(new ClientNotification());
+        
 
+            clientGUI.setVisible(true);
+            clientGUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            clientGUI.pack(); 
+           
             Thread inOutThread = new Thread(new InOutClient());
+            
             inOutThread.start();
 
         } catch (UnknownHostException e) {
@@ -56,13 +60,9 @@ public class ICClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
-        
-
     }
 
     
-
 
     public class InOutClient implements Runnable {
 
@@ -99,11 +99,13 @@ public class ICClient {
             		messageType = inputObjectFromServer.readByte();
             		
             		switch(messageType) {
-            		case 50:
-            			System.out.println(inputObjectFromServer.readUTF());
+            		case 50: // successfully registred
+            			clientGUI.setTextarea(inputObjectFromServer.readUTF());
+            			//System.out.println(inputObjectFromServer.readUTF());
             			break;
-        			case 51:
-        				System.out.println(inputObjectFromServer.readUTF());
+        			case 51: // user already exists
+        				clientGUI.setTextarea(inputObjectFromServer.readUTF());
+        				//System.out.println(inputObjectFromServer.readUTF());
             			break;
             		default:
             			done = true;
