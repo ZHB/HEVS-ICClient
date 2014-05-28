@@ -25,6 +25,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.DefaultCaret;
 
 
 public class ChatGUI extends JFrame implements ClientObservable {
@@ -122,7 +123,17 @@ public class ChatGUI extends JFrame implements ClientObservable {
         
         txtarea = new JTextArea(20, 50);
         txtarea.setEditable(false);
-        pnlCenter.add(txtarea);
+        txtarea.setBorder(BorderFactory.createCompoundBorder(
+        		txtarea.getBorder(), 
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+        
+        // always show the latest message to the textarea
+        DefaultCaret caret = (DefaultCaret)txtarea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+        JScrollPane scrollPaneTextarea = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPaneTextarea.setViewportView(txtarea);
+        pnlCenter.add(scrollPaneTextarea);
         pnlCenter.add(Box.createHorizontalStrut(10));
         
         
@@ -223,8 +234,18 @@ public class ChatGUI extends JFrame implements ClientObservable {
 	{
 		public void mouseClicked(MouseEvent e)
 		{
-			// get login/password values and notify the Server class
-			notifyRegistration(txtLogin.getText(), txPassword.getText());
+			// basics verifications
+			if(txtLogin.getText().trim() != null && 
+			   !txtLogin.getText().trim().isEmpty() && 
+			   txPassword.getText().trim() != null &&
+			   !txPassword.getText().trim().isEmpty()
+			)
+			{
+				// get login/password values and notify the Server class
+				notifyRegistration(txtLogin.getText(), txPassword.getText());
+			} else {
+				setTextarea("Username and password must not be empty !");
+			}
 		}
 	}
 

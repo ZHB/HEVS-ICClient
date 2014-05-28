@@ -172,9 +172,10 @@ public class ICClient {
 			{
 				Security sec = new Security();
 				sec.hashWithSha256(pwd);
-
+				
 				// send data to the server
-				outputObjectToServer.writeByte(1);
+				outputObjectToServer.writeByte(1); // register code
+				
 				outputObjectToServer.writeUTF(login.trim());
 				outputObjectToServer.writeUTF(sec.hashWithSha256(pwd));
 				outputObjectToServer.flush();
