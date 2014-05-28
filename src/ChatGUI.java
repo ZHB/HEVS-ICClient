@@ -123,6 +123,7 @@ public class ChatGUI extends JFrame implements ClientObservable {
         
         txtarea = new JTextArea(20, 50);
         txtarea.setEditable(false);
+        txtLogin.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         txtarea.setBorder(BorderFactory.createCompoundBorder(
         		txtarea.getBorder(), 
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
@@ -219,8 +220,17 @@ public class ChatGUI extends JFrame implements ClientObservable {
 	{
 		public void mouseClicked(MouseEvent e)
 		{
-			// get login/password values and notify the Server class
-			notifyLogin(txtLogin.getText(), txPassword.getText());
+			if(txtLogin.getText().trim() != null && 
+			   !txtLogin.getText().trim().isEmpty() && 
+			   txPassword.getText().trim() != null &&
+			   !txPassword.getText().trim().isEmpty()
+			)
+			{
+				// get login/password values and notify the Server class
+				notifyLogin(txtLogin.getText(), txPassword.getText());
+			} else {
+				setTextarea("Username and password must not be empty !");
+			}
 		}
 	}
 	

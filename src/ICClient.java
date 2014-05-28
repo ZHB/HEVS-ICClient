@@ -107,6 +107,14 @@ public class ICClient {
         				clientGUI.setTextarea(inputObjectFromServer.readUTF());
         				//System.out.println(inputObjectFromServer.readUTF());
             			break;
+        			case 52: // user already exists
+        				clientGUI.setTextarea(inputObjectFromServer.readUTF());
+        				//System.out.println(inputObjectFromServer.readUTF());
+            			break;
+        			case 53: // user already exists
+        				clientGUI.setTextarea(inputObjectFromServer.readUTF());
+        				//System.out.println(inputObjectFromServer.readUTF());
+            			break;
             		default:
             			done = true;
             		}
@@ -153,28 +161,13 @@ public class ICClient {
 		public void login(String login, String pwd) {
 			System.out.println("Classe ICClient notifié du login de " + login + " + " + pwd);
 			
-			// vérifier existsance login dans le système
-			outputToServer.println();
-			
-			// si login n'existe pas, renvoyer message
-			
-			// si existe, crypter mot de passe et vérifier par rapport à la BDD
-			
-			// si OK, ouvrir la fenêtre de chat
-			
-			// charger la liste des clients
-			
-		}
-
-		@Override
-		public void register(String login, String pwd) {
 			try 
 			{
 				Security sec = new Security();
 				sec.hashWithSha256(pwd);
 				
 				// send data to the server
-				outputObjectToServer.writeByte(1); // register code
+				outputObjectToServer.writeByte(2); // register code
 				
 				outputObjectToServer.writeUTF(login.trim());
 				outputObjectToServer.writeUTF(sec.hashWithSha256(pwd));
@@ -190,12 +183,31 @@ public class ICClient {
 				e.printStackTrace();
 			}
 			
-			
-			// vérifier que l'utilisateur n'existe pas déjà
-			
-			// Si n'existe pas, crypter message et sauvegarde en BDD.
-			
-			// Renvoyer message de confirmation
+		}
+
+		@Override
+		public void register(String login, String pwd) {
+			try 
+			{
+				Security sec = new Security();
+				sec.hashWithSha256(pwd);
+				
+				// send data to the server
+				outputObjectToServer.writeByte(1); // login code
+				
+				outputObjectToServer.writeUTF(login.trim());
+				outputObjectToServer.writeUTF(sec.hashWithSha256(pwd));
+				outputObjectToServer.flush();
+				
+			} 
+			catch (NoSuchAlgorithmException e1) 
+			{
+				e1.printStackTrace();
+			} 
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
 		}
     	
     }
