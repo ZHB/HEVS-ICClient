@@ -7,4 +7,6 @@ public interface ClientObserver {
 	
 	public void register(String login, String pwd);
 	
+	public void notifyDisconnection();
+	
 }

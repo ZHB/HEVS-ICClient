@@ -5,10 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Array;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -37,7 +37,10 @@ public class ChatGUI extends JFrame implements ClientObservable {
 	  private JPasswordField txPassword = new JPasswordField(10);
 	  private JTextField txtLogin = new JTextField(15);
 	  
+	  JList usersList = new JList();
+	  
 	  public ChatGUI() {
+		  this.addWindowListener(new CustomWindowAdapter());
 		  this.buildGUI();
 	  }
 	  
@@ -50,6 +53,23 @@ public class ChatGUI extends JFrame implements ClientObservable {
 	               txtarea.append("\n");
 	           }
 	       });
+	  }
+	  
+	  public void updateUsersList(HashMap<String, User> users) {
+		  
+		  usersList.setListData(users.keySet().toArray());
+		  
+
+		  
+		 // final Object finalArg = string;
+
+		  /*
+          SwingUtilities.invokeLater(new Runnable() {
+	           public void run() {
+	               txtarea.append(finalArg.toString());
+	               txtarea.append("\n");
+	           }
+	       });*/
 	  }
 
 	  private void buildGUI() {
@@ -138,14 +158,16 @@ public class ChatGUI extends JFrame implements ClientObservable {
         pnlCenter.add(Box.createHorizontalStrut(10));
         
         
-        String items[] = {"Siméon", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle"};
-        JList<String> combo = new JList<String>(items);
-        combo.setFixedCellWidth(150);
-        combo.setVisibleRowCount(4);
+        //String items[] = {"Siméon", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle"};
+        String items[] = new String[0];
+        
+        //usersList.setListData(listData);
+        usersList.setFixedCellWidth(150);
+        usersList.setVisibleRowCount(4);
 
         
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setViewportView(combo);
+        scrollPane.setViewportView(usersList);
         
         pnlCenter.add(scrollPane);
         
@@ -258,6 +280,21 @@ public class ChatGUI extends JFrame implements ClientObservable {
 			}
 		}
 	}
+	
+	/**
+	 * Action to performe on windows closing
+	 * 
+	 * @author Vince
+	 *
+	 */
+	class CustomWindowAdapter extends WindowAdapter 
+	{
+		// exit the application when window's close button is clicked
+		public void windowClosing(WindowEvent e) {
+			notifyDisconnection();
+			System.exit(0);
+		}
+	}
 
 	@Override
 	public void addObserver(ClientObserver obs) {
@@ -283,6 +320,14 @@ public class ChatGUI extends JFrame implements ClientObservable {
 		for(ClientObserver obs : observers) 
 		{
 			obs.register(login, pwd);
+		}
+	}
+
+	@Override
+	public void notifyDisconnection() {
+		for(ClientObserver obs : observers) 
+		{
+			obs.notifyDisconnection();
 		}
 	}
 }
