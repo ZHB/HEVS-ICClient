@@ -3,12 +3,16 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -27,63 +31,91 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
 
+import com.apple.dnssd.TXTRecord;
+
 
 public class ChatGUI extends JFrame implements ClientObservable {
 	
 	  private JTextArea txtarea;
-	  private JTextField inputTextField;
+	  private JTextField txtMessage;
 	  private ArrayList<ClientObserver> observers = new ArrayList<ClientObserver>();
 	  
 	  private JPasswordField txPassword = new JPasswordField(10);
 	  private JTextField txtLogin = new JTextField(15);
+	  private JButton btnSendMessage = new JButton();
 	  
-	  JList usersList = new JList();
+	  private JLabel lblLogin = new JLabel("Login");
+	  private JLabel lblPassword = new JLabel("Password");
+	  
+	  private JButton btnConnect = new JButton("Connect");
+	  private JButton btnRegister = new JButton("Register"); 
+	  
+	  private JButton btnDisconnect = new JButton("Disconnect");
+	  private JButton btnUnregister = new JButton("Unregister");
+	
+	  
+	  private JList usersList = new JList();
 	  
 	  public ChatGUI() {
 		  this.addWindowListener(new CustomWindowAdapter());
 		  this.buildGUI();
 	  }
 	  
-	  public void setTextarea(String string) {
+	  public void setTextarea(String string) 
+	  {
 		  final Object finalArg = string;
 
           SwingUtilities.invokeLater(new Runnable() {
 	           public void run() {
 	               txtarea.append(finalArg.toString());
-	               txtarea.append("\n");
+	               txtarea.append("\r\n");
 	           }
 	       });
 	  }
 	  
-	  public void updateUsersList(HashMap<String, User> users) {
-		  
+	  public void updateUsersList(HashMap<String, User> users) 
+	  {
 		  usersList.setListData(users.keySet().toArray());
+	  }
+	  
+	  public void setLoggedInButtons() 
+	  {
+		  btnConnect.setVisible(false);
+		  btnRegister.setVisible(false);
 		  
-
+		  lblLogin.setVisible(false);
+		  lblPassword.setVisible(false);
 		  
-		 // final Object finalArg = string;
-
-		  /*
-          SwingUtilities.invokeLater(new Runnable() {
-	           public void run() {
-	               txtarea.append(finalArg.toString());
-	               txtarea.append("\n");
-	           }
-	       });*/
+		  txtLogin.setVisible(false);
+		  txPassword.setVisible(false);
+		  
+		  btnDisconnect.setVisible(true);
+		  btnUnregister.setVisible(true);
+	  }
+	  
+	  public void setLoggedOffButtons() 
+	  {
+		  btnConnect.setVisible(true);
+		  btnRegister.setVisible(true);
+		  
+		  lblLogin.setVisible(true);
+		  lblPassword.setVisible(true);
+		  
+		  txtLogin.setVisible(true);
+		  txPassword.setVisible(true);
+		  
+		  btnDisconnect.setVisible(false);
+		  btnUnregister.setVisible(false);
 	  }
 
 	  private void buildGUI() {
     	
-    	
     	// zone connexion top
-        JLabel lblLogin = new JLabel("Login");
         lblLogin.setForeground(Color.white);
-        JLabel lblPassword = new JLabel("Password");
         lblPassword.setForeground(Color.white);
         
 
         txtLogin.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-        
         txtLogin.setBorder(BorderFactory.createCompoundBorder(
         		txtLogin.getBorder(), 
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
@@ -94,18 +126,29 @@ public class ChatGUI extends JFrame implements ClientObservable {
 				txPassword.getBorder(), 
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 		 
-		JButton btnConnectWest = new JButton("Connect");
-		btnConnectWest.setBorderPainted(false);
-		btnConnectWest.setFocusPainted(false);
-		btnConnectWest.setBackground(Color.WHITE);
-		btnConnectWest.addMouseListener(new LoginAction());
 		
-		JButton btnRegisterEast = new JButton("Register");
-		btnRegisterEast.setBorderPainted(false);
-		btnRegisterEast.setFocusPainted(false);
-		btnRegisterEast.setBackground(Color.WHITE);
-		btnRegisterEast.addMouseListener(new RegisterAction());
-        
+		btnConnect.setBorderPainted(false);
+		btnConnect.setFocusPainted(false);
+		btnConnect.setBackground(Color.WHITE);
+		btnConnect.addMouseListener(new LoginAction());
+		
+		btnDisconnect.setVisible(false);
+		btnDisconnect.setBorderPainted(false);
+		btnDisconnect.setFocusPainted(false);
+		btnDisconnect.setBackground(Color.WHITE);
+		btnDisconnect.addMouseListener(new LogoutAction());
+		
+		btnRegister.setBorderPainted(false);
+		btnRegister.setFocusPainted(false);
+		btnRegister.setBackground(Color.WHITE);
+		btnRegister.addMouseListener(new RegisterAction());
+		
+		btnUnregister.setVisible(false);
+		btnUnregister.setBorderPainted(false);
+		btnUnregister.setFocusPainted(false);
+		btnUnregister.setBackground(Color.WHITE);
+		btnUnregister.addMouseListener(new UnregisterAction());
+
         JPanel pnlNorth = new JPanel();
         pnlNorth.setLayout(new BoxLayout(pnlNorth, BoxLayout.X_AXIS));
         pnlNorth.setBorder(new EmptyBorder(10, 10, 10, 10) ); // set padding
@@ -120,19 +163,20 @@ public class ChatGUI extends JFrame implements ClientObservable {
         pnlNorth.add(txPassword);
         
         pnlNorth.add(Box.createHorizontalStrut(10));
-        pnlNorth.add(btnConnectWest);
+        pnlNorth.add(btnConnect);
+        pnlNorth.add(btnDisconnect);
         pnlNorth.add(Box.createHorizontalStrut(5));
-        pnlNorth.add(btnRegisterEast);
+        pnlNorth.add(btnRegister);
+        pnlNorth.add(btnUnregister);
+
 
         pnlNorth.setBackground(new Color(48,138,226));
-        
+
         
         Box northBox = Box.createHorizontalBox();
         northBox.add(pnlNorth);
         add(northBox, BorderLayout.NORTH);
 	
-        
-        
         
         // zone centrale
         JPanel pnlCenter = new JPanel();
@@ -143,7 +187,7 @@ public class ChatGUI extends JFrame implements ClientObservable {
         
         txtarea = new JTextArea(20, 50);
         txtarea.setEditable(false);
-        txtLogin.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+        txtarea.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         txtarea.setBorder(BorderFactory.createCompoundBorder(
         		txtarea.getBorder(), 
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
@@ -158,14 +202,10 @@ public class ChatGUI extends JFrame implements ClientObservable {
         pnlCenter.add(Box.createHorizontalStrut(10));
         
         
-        //String items[] = {"Siméon", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle", "Vincent", "Dany", "Jean", "Dominique", "Sylvain", "Pierre", "Christophe", "Maëlle"};
-        String items[] = new String[0];
-        
-        //usersList.setListData(listData);
         usersList.setFixedCellWidth(150);
         usersList.setVisibleRowCount(4);
+        usersList.addMouseListener(new UserSelectionAction());
 
-        
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(usersList);
         
@@ -177,9 +217,6 @@ public class ChatGUI extends JFrame implements ClientObservable {
         add(centeredBox, BorderLayout.CENTER);
         
         
-       
-
-     
         // zone basse
         JPanel pnlSouth = new JPanel();
         pnlSouth.setLayout(new BoxLayout(pnlSouth, BoxLayout.X_AXIS));
@@ -188,50 +225,79 @@ public class ChatGUI extends JFrame implements ClientObservable {
         
         Box southBox = Box.createHorizontalBox();
         add(southBox, BorderLayout.SOUTH);
-        inputTextField = new JTextField();
-        inputTextField.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-        inputTextField.setBorder(BorderFactory.createCompoundBorder(
-        		inputTextField.getBorder(), 
+        
+        txtMessage = new JTextField();
+        txtMessage.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+        txtMessage.setBorder(BorderFactory.createCompoundBorder(
+        		txtMessage.getBorder(), 
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+        txtMessage.addActionListener(new SendMessageOnKeyPressed());
+        //txtMessage.addKeyListener(new SendMessageOnKeyPressed());
+       
+        btnSendMessage.setText("Send");
+        btnSendMessage.setPreferredSize(new Dimension(170, 30));
+        btnSendMessage.setBorderPainted(false);
+        btnSendMessage.setFocusPainted(false);
+        btnSendMessage.setBackground(Color.WHITE);
         
-        JButton sendButton = new JButton("Send");
-        sendButton.setPreferredSize(new Dimension(170, 30));
-        sendButton.setBorderPainted(false);
-        sendButton.setFocusPainted(false);
-        sendButton.setBackground(Color.WHITE);
+        btnSendMessage.addMouseListener(new SendMessageAction());
         
-        pnlSouth.add(inputTextField);
+        pnlSouth.add(txtMessage);
         pnlSouth.add(Box.createHorizontalStrut(10));
-        pnlSouth.add(sendButton);
+        pnlSouth.add(btnSendMessage);
         
         pnlSouth.setBackground(new Color(48,138,226));
-        
-        
-        southBox.add(pnlSouth);
-         
-         
-        
-
-         // Action for the inputTextField and the goButton
-         ActionListener sendListener = new ActionListener() {
-             public void actionPerformed(ActionEvent e) {
-
-                 String str = inputTextField.getText();
-
-                 if (str != null && str.trim().length() > 0)
-                 {
-                     //outputToServer.println(str);
-                     //outputToServer.flush();
-                 }
-
-                 inputTextField.selectAll();
-                 inputTextField.requestFocus();
-             }
-         };
-         inputTextField.addActionListener(sendListener);
-         sendButton.addActionListener(sendListener);
+        southBox.add(pnlSouth);        
     }
 	  
+	  
+	 private class SendMessageOnKeyPressed implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String str = txtMessage.getText();
+
+            if (str != null && str.trim().length() > 0)
+            {
+                notifyMessage(str);
+            }
+            
+            txtMessage.setText("");
+            txtMessage.selectAll();
+            txtMessage.requestFocus();
+		} 
+	 }
+
+	 /**
+	 * Action performed when a user click the login button
+	 * 
+	 * @author Vince
+	 *
+	 */
+	private class SendMessageAction extends MouseAdapter
+	{
+		public void mouseClicked(MouseEvent e)
+		{
+			String str = txtMessage.getText();
+
+            if (str != null && str.trim().length() > 0)
+            {
+                notifyMessage(str);
+            }
+            txtMessage.setText("");
+            txtMessage.selectAll();
+            txtMessage.requestFocus();
+		}
+	}
+	
+	private class UserSelectionAction extends MouseAdapter
+	{
+		public void mouseClicked(MouseEvent e)
+		{
+			List selectedUsers = usersList.getSelectedValuesList();
+			notifyUserSelection(selectedUsers);
+		}
+	}
+		
 	/**
 	 * Action performed when a user click the login button
 	 * 
@@ -244,15 +310,26 @@ public class ChatGUI extends JFrame implements ClientObservable {
 		{
 			if(txtLogin.getText().trim() != null && 
 			   !txtLogin.getText().trim().isEmpty() && 
-			   txPassword.getText().trim() != null &&
-			   !txPassword.getText().trim().isEmpty()
+			   txPassword.getPassword() != null &&
+			   txPassword.getPassword().length > 0
 			)
 			{
+				char[] pass = txPassword.getPassword();  
+				String passString = new String(pass); 
+				
 				// get login/password values and notify the Server class
-				notifyLogin(txtLogin.getText(), txPassword.getText());
+				notifyLogin(txtLogin.getText(), passString);
 			} else {
 				setTextarea("Username and password must not be empty !");
 			}
+		}
+	}
+	
+	private class LogoutAction extends MouseAdapter
+	{
+		public void mouseClicked(MouseEvent e)
+		{
+			notifyLogout();
 		}
 	}
 	
@@ -269,15 +346,25 @@ public class ChatGUI extends JFrame implements ClientObservable {
 			// basics verifications
 			if(txtLogin.getText().trim() != null && 
 			   !txtLogin.getText().trim().isEmpty() && 
-			   txPassword.getText().trim() != null &&
-			   !txPassword.getText().trim().isEmpty()
+			   txPassword.getPassword() != null &&
+			   txPassword.getPassword().length > 0
 			)
 			{
 				// get login/password values and notify the Server class
-				notifyRegistration(txtLogin.getText(), txPassword.getText());
+				char[] pass = txPassword.getPassword();  
+				String passString = new String(pass); 
+				notifyRegistration(txtLogin.getText(), passString);
 			} else {
 				setTextarea("Username and password must not be empty !");
 			}
+		}
+	}
+	
+	private class UnregisterAction extends MouseAdapter
+	{
+		public void mouseClicked(MouseEvent e)
+		{
+			notifyUnregister();
 		}
 	}
 	
@@ -328,6 +415,38 @@ public class ChatGUI extends JFrame implements ClientObservable {
 		for(ClientObserver obs : observers) 
 		{
 			obs.notifyDisconnection();
+		}
+	}
+
+	@Override
+	public void notifyMessage(String m) {
+		for(ClientObserver obs : observers) 
+		{
+			obs.notifyMessage(m);
+		}
+	}
+
+	@Override
+	public void notifyUserSelection(List l) {
+		for(ClientObserver obs : observers) 
+		{
+			obs.notifyUserSelection(l);
+		}
+	}
+
+	@Override
+	public void notifyLogout() {
+		for(ClientObserver obs : observers) 
+		{
+			obs.notifyLogout();
+		}
+	}
+
+	@Override
+	public void notifyUnregister() {
+		for(ClientObserver obs : observers) 
+		{
+			obs.notifyUnregister();
 		}
 	}
 }

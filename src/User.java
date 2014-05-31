@@ -1,5 +1,6 @@
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class User implements Serializable
@@ -13,7 +14,9 @@ public class User implements Serializable
 	private String pwd;
 	private boolean isConnected = false;
 	private ArrayList<Discussion> discussions;
+	private HashMap<String, ArrayList<Message>> conversations = new HashMap<String, ArrayList<Message>>();
 	
+
 	public User()
 	{
 
@@ -23,6 +26,19 @@ public class User implements Serializable
 	{
 		this.login = login;
 		this.pwd = pwd;
+	}
+	
+	public void createConversation(String key) {
+		ArrayList<Message> messages = new ArrayList<Message>();
+		conversations.put(key, messages);
+	}
+	
+	public ArrayList<Message> getConversation(String key) {
+		return conversations.get(key);
+	}
+
+	public void setConversation(String key, Message message) {
+		conversations.get(key).add(message);
 	}
 	
 	public boolean isConnected() {
@@ -54,6 +70,5 @@ public class User implements Serializable
 	public String getLogin()
 	{
 		return login;
-	}
-	
+	}	
 }

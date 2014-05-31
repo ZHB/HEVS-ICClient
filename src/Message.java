@@ -1,7 +1,9 @@
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
-public class Message {
+public class Message implements Serializable {
 
 	private String message;
 	private Date date;
@@ -27,5 +29,9 @@ public class Message {
 		this.date = date;
 	}
 	
-	
+	public String getFormatedDate() {
+		SimpleDateFormat dateStandard = new SimpleDateFormat("dd.MM.yyyy H:m:s");
+
+		return dateStandard.format(this.getDate());
+	}
 }

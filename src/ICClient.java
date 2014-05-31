@@ -5,7 +5,10 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.List;
+
 import javax.swing.JFrame;
+
 import security.Security;
 
 public class ICClient {
@@ -18,8 +21,7 @@ public class ICClient {
     byte[] serverIP = {127, 0, 0, 1};
     
     private ChatGUI clientGUI;
-   // private HashMap<String, User> users = new HashMap<String, User>();
-    private User user;
+    private User user = new User();
     
     
     private HashMap<String, User> registredUsers = new HashMap<String, User>();
@@ -56,10 +58,7 @@ public class ICClient {
         {
             try {
                 outputObjectToServer = new ObjectOutputStream(serverSocket.getOutputStream());
-                //outputObjectToServer.flush();
                 inputObjectFromServer = new ObjectInputStream(serverSocket.getInputStream());
-                
-                //ObjectInputStream objectInputStream = new ObjectInputStream(serverSocket.getInputStream());
             } catch (IOException e) {
             	System.out.println("dsdd");
                 e.printStackTrace();
@@ -80,52 +79,46 @@ public class ICClient {
             		messageType = inputObjectFromServer.readByte();
             		
 					switch(messageType) {
-            		case 50: // successfully registered
+					case 11: // login
+						clientGUI.setLoggedInButtons();
+            			break;
+					case 12: // logout
+						clientGUI.setLoggedOffButtons();
+						
+						// clear registered users list
+						registredUsers.clear();
+						clientGUI.updateUsersList(registredUsers);
+            			break;
+					case 21: // messages
             			clientGUI.setTextarea(inputObjectFromServer.readUTF());
             			break;
-        			case 51: // user already exists
-        				clientGUI.setTextarea(inputObjectFromServer.readUTF());
+					case 100: // update the User Object
+						try {
+							user = (User) inputObjectFromServer.readObject();
+						} catch (ClassNotFoundException e2) {
+							e2.printStackTrace();
+						}
             			break;
-        			case 52: // user already exists
-        				clientGUI.setTextarea(inputObjectFromServer.readUTF());
-            			break;
-        			case 53: // user login success
-        				clientGUI.setTextarea(inputObjectFromServer.readUTF());
-            			break;
-        			case 54: // update users list
-
-						try 
-						{
-							//clientGUI.updateUsersList((HashMap<String, User>) inputObjectFromServer.readObject());
-							//HashMap<String, User> users = (HashMap<String, User>) inputObjectFromServer.readObject();
-							
-							System.out.println("update list");
-							
+					case 101: // update users list
+						
+						try {
 							registredUsers = (HashMap<String, User>) inputObjectFromServer.readObject();
-							
-							//if(user.isConnected()) {
+
+							// update GUI users list only for connected clients
+							if(user.isConnected()) 
+							{
 								clientGUI.updateUsersList(registredUsers);
-							//}
-								//System.out.println(user.isConnected() + " L'utilisateur est connecté. Update liste !");
-								
-							
-							//users = (HashMap<String, User>) inputObjectFromServer.readObject();
-							
-							
-						} 
-						catch (ClassNotFoundException e) 
-						{
+							}
+						} catch (ClassNotFoundException e) {
 							e.printStackTrace();
 						}
-						
             			break;
-        			case 55: // create user
+        			case 13: // updtate user status as connected = true
         				try {
 							user = (User) inputObjectFromServer.readObject();
 							
 							System.out.println("Login : " + user.getLogin() + user.isConnected());
 							if(user.isConnected()) {
-								System.out.println("sent list");
 								System.out.println("taille : " +registredUsers.size());
 								clientGUI.updateUsersList(registredUsers);
 							}
@@ -143,14 +136,6 @@ public class ICClient {
 							e1.printStackTrace();
 						}
         				break;
-    				case 70: // create user
-    					System.out.println("liste recue");
-        				try {
-        					registredUsers = (HashMap<String, User>) inputObjectFromServer.readObject();
-						} catch (ClassNotFoundException e1) {
-							e1.printStackTrace();
-						}
-        				break;
             		default:
             			done = true;
             		}
@@ -164,24 +149,36 @@ public class ICClient {
     public class ClientNotification implements ClientObserver {
 
 		@Override
-		public void notifyMessage(String m) {
-			System.out.println("Classe ICClient notifié de l'envoi de message");	
+		public void notifyMessage(String s) {
+			
+			// create a new conversation for the user
+			//user.createConversation("conv1");
+			
+			// add a message to a conversation
+			//user.setConversation("conv1",  new Message(s));
+			
+			try {
+				outputObjectToServer.writeByte(21); // Send message code
+				outputObjectToServer.writeObject(new Message(s));
+				outputObjectToServer.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		@Override
 		public void login(String login, String pwd) {
 			try 
 			{
-				Security sec = new Security();
-				sec.hashWithSha256(pwd);
+				// set the user with his login informations
+				user.setLogin(login);
+				user.setPwd(new Security().hashWithSha256(pwd));
 				
-				// send data to the server
-				outputObjectToServer.writeByte(2); // login code
-				
-				outputObjectToServer.writeUTF(login.trim());
-				outputObjectToServer.writeUTF(sec.hashWithSha256(pwd));
+				// send the user to the server for login process
+				outputObjectToServer.writeByte(11);
+				outputObjectToServer.writeObject(user);
 				outputObjectToServer.flush();
-				
+				outputObjectToServer.reset();
 			} 
 			catch (NoSuchAlgorithmException | IOException e) 
 			{
@@ -193,21 +190,18 @@ public class ICClient {
 		public void register(String login, String pwd) {
 			try 
 			{
-				Security sec = new Security();
-				sec.hashWithSha256(pwd);
+				// set the new user 
+				user.setLogin(login);
+				user.setPwd(new Security().hashWithSha256(pwd));
 				
-				// send data to the server
+				// send the new user to the server for registration
 				outputObjectToServer.writeByte(1); // register code
-				outputObjectToServer.writeUTF(login.trim());
-				outputObjectToServer.writeUTF(sec.hashWithSha256(pwd));
+				outputObjectToServer.writeObject(user);
 				outputObjectToServer.flush();
-				
-			} 
-			catch (NoSuchAlgorithmException | IOException e) 
-			{
+				outputObjectToServer.reset();
+			} catch (NoSuchAlgorithmException | IOException e) {
 				e.printStackTrace();
-			} 
-			
+			}
 		}
 
 		@Override
@@ -216,6 +210,49 @@ public class ICClient {
 				outputObjectToServer.close();
 				inputObjectFromServer.close();
 	            serverSocket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public void notifyUserSelection(List selectedUsers) {
+			try {
+				outputObjectToServer.writeByte(111);
+				outputObjectToServer.writeObject(selectedUsers);
+				outputObjectToServer.flush();
+				outputObjectToServer.reset();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+
+			// stocker la liste des tilisateurs sélectionnés
+			
+			// vérifier si fichier de conversation existe
+			
+			// s'il existe, charger le fichier de conversation
+			
+		}
+
+		@Override
+		public void notifyLogout() {
+			try {
+				outputObjectToServer.writeByte(12); // logout code
+				outputObjectToServer.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public void notifyUnregister() {
+			try 
+			{
+				outputObjectToServer.writeByte(2);
+				outputObjectToServer.writeObject(user);
+				outputObjectToServer.flush();
+				outputObjectToServer.reset();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
