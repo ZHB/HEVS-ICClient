@@ -27,14 +27,16 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
 
-import com.apple.dnssd.TXTRecord;
+//import com.apple.dnssd.TXTRecord;
 
 
-public class ChatGUI extends JFrame implements ClientObservable {
+public class ChatGUI extends JFrame implements ClientObservable
+{
 	
 	  private JTextArea txtarea;
 	  private JTextField txtMessage;
@@ -56,7 +58,8 @@ public class ChatGUI extends JFrame implements ClientObservable {
 	  
 	  private JList usersList = new JList();
 	  
-	  public ChatGUI() {
+	  public ChatGUI()
+	  {
 		  this.addWindowListener(new CustomWindowAdapter());
 		  this.buildGUI();
 	  }
@@ -65,8 +68,10 @@ public class ChatGUI extends JFrame implements ClientObservable {
 	  {
 		  final Object finalArg = string;
 
-          SwingUtilities.invokeLater(new Runnable() {
-	           public void run() {
+          SwingUtilities.invokeLater(new Runnable()
+          {
+	           public void run()
+	           {
 	               txtarea.append(finalArg.toString());
 	               txtarea.append("\r\n");
 	           }
@@ -108,19 +113,17 @@ public class ChatGUI extends JFrame implements ClientObservable {
 		  btnUnregister.setVisible(false);
 	  }
 
-	  private void buildGUI() {
-    	
+	  private void buildGUI()
+	  {
     	// zone connexion top
         lblLogin.setForeground(Color.white);
         lblPassword.setForeground(Color.white);
         
-
         txtLogin.setBorder(javax.swing.BorderFactory.createEmptyBorder());
         txtLogin.setBorder(BorderFactory.createCompoundBorder(
         		txtLogin.getBorder(), 
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         
-       
 		txPassword.setBorder(javax.swing.BorderFactory.createEmptyBorder());
 		txPassword.setBorder(BorderFactory.createCompoundBorder(
 				txPassword.getBorder(), 
@@ -169,15 +172,12 @@ public class ChatGUI extends JFrame implements ClientObservable {
         pnlNorth.add(btnRegister);
         pnlNorth.add(btnUnregister);
 
-
         pnlNorth.setBackground(new Color(48,138,226));
-
         
         Box northBox = Box.createHorizontalBox();
         northBox.add(pnlNorth);
         add(northBox, BorderLayout.NORTH);
 	
-        
         // zone centrale
         JPanel pnlCenter = new JPanel();
         pnlCenter.setLayout(new BoxLayout(pnlCenter, BoxLayout.X_AXIS));
@@ -205,6 +205,7 @@ public class ChatGUI extends JFrame implements ClientObservable {
         usersList.setFixedCellWidth(150);
         usersList.setVisibleRowCount(4);
         usersList.addMouseListener(new UserSelectionAction());
+        usersList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // limiter la selection à 1 user
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(usersList);
@@ -251,7 +252,8 @@ public class ChatGUI extends JFrame implements ClientObservable {
     }
 	  
 	  
-	 private class SendMessageOnKeyPressed implements ActionListener {
+	 private class SendMessageOnKeyPressed implements ActionListener
+	 {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String str = txtMessage.getText();
@@ -289,12 +291,25 @@ public class ChatGUI extends JFrame implements ClientObservable {
 		}
 	}
 	
+	/**
+	 * When a user is selected in the list
+	 * @author Meon
+	 *
+	 */
 	private class UserSelectionAction extends MouseAdapter
 	{
 		public void mouseClicked(MouseEvent e)
 		{
+			/*
 			List selectedUsers = usersList.getSelectedValuesList();
 			notifyUserSelection(selectedUsers);
+			*/
+			
+			notifyUserSelection((User) usersList.getSelectedValue());
+			
+			// Demander le hasmap de cet utilisateur au serveur afin d'afficher les discussions
+			txtarea.setText("Discussion avec " + usersList.getSelectedValue());
+			
 		}
 	}
 		
@@ -425,7 +440,7 @@ public class ChatGUI extends JFrame implements ClientObservable {
 			obs.notifyMessage(m);
 		}
 	}
-
+/*
 	@Override
 	public void notifyUserSelection(List l) {
 		for(ClientObserver obs : observers) 
@@ -433,7 +448,7 @@ public class ChatGUI extends JFrame implements ClientObservable {
 			obs.notifyUserSelection(l);
 		}
 	}
-
+*/
 	@Override
 	public void notifyLogout() {
 		for(ClientObserver obs : observers) 
@@ -448,5 +463,11 @@ public class ChatGUI extends JFrame implements ClientObservable {
 		{
 			obs.notifyUnregister();
 		}
+	}
+
+	@Override
+	public void notifyUserSelection(User u) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -19,5 +19,5 @@ public interface ClientObservable {
 	
 	public void notifyMessage(String m);
 	
-	public void notifyUserSelection(List l);
+	public void notifyUserSelection(User u);
 }

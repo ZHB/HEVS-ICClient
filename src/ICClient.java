@@ -11,7 +11,8 @@ import javax.swing.JFrame;
 
 import security.Security;
 
-public class ICClient {
+public class ICClient
+{
 
     private Socket serverSocket;
 
@@ -26,10 +27,11 @@ public class ICClient {
     
     private HashMap<String, User> registredUsers = new HashMap<String, User>();
     
-    public ICClient() {
+    public ICClient()
+    {
         try 
         {
-            serverSocket = new Socket("192.168.0.12", 1096);
+            serverSocket = new Socket("127.0.0.1", 1096);
 
             //InetAddress serverAddress = InetAddress.getByAddress("",serverIP);
             //serverSocket = new Socket(serverAddress, 1096);
@@ -52,7 +54,8 @@ public class ICClient {
 
     
 
-    public class InOutClient implements Runnable {
+    public class InOutClient implements Runnable
+    {
 
         public InOutClient()
         {
@@ -67,7 +70,8 @@ public class ICClient {
 
         // receiving from server
         @Override
-        public void run() {
+        public void run()
+        {
 
             try 
             {
@@ -227,9 +231,9 @@ public class ICClient {
 			}
 			
 
-			// stocker la liste des tilisateurs sélectionnés
+			// stocker la liste des tilisateurs sï¿½lectionnï¿½s
 			
-			// vérifier si fichier de conversation existe
+			// vï¿½rifier si fichier de conversation existe
 			
 			// s'il existe, charger le fichier de conversation
 			
