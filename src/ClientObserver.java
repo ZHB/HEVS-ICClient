@@ -15,5 +15,5 @@ public interface ClientObserver {
 	
 	public void notifyMessage(String m);
 
-	public void notifyUserSelection(java.util.List l);
+	public void notifyUserSelection(User u);
 }

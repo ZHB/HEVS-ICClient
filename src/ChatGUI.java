@@ -55,7 +55,7 @@ public class ChatGUI extends JFrame implements ClientObservable
 	  private JButton btnDisconnect = new JButton("Disconnect");
 	  private JButton btnUnregister = new JButton("Unregister");
 	
-	  
+	  private HashMap<String, User> users = new HashMap<String, User>();
 	  private JList usersList = new JList();
 	  
 	  public ChatGUI()
@@ -80,7 +80,8 @@ public class ChatGUI extends JFrame implements ClientObservable
 	  
 	  public void updateUsersList(HashMap<String, User> users) 
 	  {
-		  usersList.setListData(users.keySet().toArray());
+		  this.users = users;
+		  usersList.setListData(this.users.keySet().toArray());
 	  }
 	  
 	  public void setLoggedInButtons() 
@@ -300,16 +301,8 @@ public class ChatGUI extends JFrame implements ClientObservable
 	{
 		public void mouseClicked(MouseEvent e)
 		{
-			/*
-			List selectedUsers = usersList.getSelectedValuesList();
-			notifyUserSelection(selectedUsers);
-			*/
-			
-			notifyUserSelection((User) usersList.getSelectedValue());
-			
-			// Demander le hasmap de cet utilisateur au serveur afin d'afficher les discussions
 			txtarea.setText("Discussion avec " + usersList.getSelectedValue());
-			
+			notifyUserSelection(users.get(usersList.getSelectedValue()));
 		}
 	}
 		
@@ -384,27 +377,30 @@ public class ChatGUI extends JFrame implements ClientObservable
 	}
 	
 	/**
-	 * Action to performe on windows closing
+	 * Action to perform on windows closing
 	 * 
 	 * @author Vince
 	 *
 	 */
-	class CustomWindowAdapter extends WindowAdapter 
+	private class CustomWindowAdapter extends WindowAdapter 
 	{
 		// exit the application when window's close button is clicked
-		public void windowClosing(WindowEvent e) {
+		public void windowClosing(WindowEvent e)
+		{
 			notifyDisconnection();
 			System.exit(0);
 		}
 	}
 
 	@Override
-	public void addObserver(ClientObserver obs) {
+	public void addObserver(ClientObserver obs)
+	{
 		observers.add(obs);
 	}
 
 	@Override
-	public void removeObserver(ClientObserver obs) {
+	public void removeObserver(ClientObserver obs)
+	{
 		observers.remove(obs);
 	}
 
@@ -418,7 +414,8 @@ public class ChatGUI extends JFrame implements ClientObservable
 	}
 
 	@Override
-	public void notifyRegistration(String login, String pwd) {
+	public void notifyRegistration(String login, String pwd)
+	{
 		for(ClientObserver obs : observers) 
 		{
 			obs.register(login, pwd);
@@ -426,7 +423,8 @@ public class ChatGUI extends JFrame implements ClientObservable
 	}
 
 	@Override
-	public void notifyDisconnection() {
+	public void notifyDisconnection()
+	{
 		for(ClientObserver obs : observers) 
 		{
 			obs.notifyDisconnection();
@@ -434,23 +432,17 @@ public class ChatGUI extends JFrame implements ClientObservable
 	}
 
 	@Override
-	public void notifyMessage(String m) {
+	public void notifyMessage(String m)
+	{
 		for(ClientObserver obs : observers) 
 		{
 			obs.notifyMessage(m);
 		}
 	}
-/*
+
 	@Override
-	public void notifyUserSelection(List l) {
-		for(ClientObserver obs : observers) 
-		{
-			obs.notifyUserSelection(l);
-		}
-	}
-*/
-	@Override
-	public void notifyLogout() {
+	public void notifyLogout()
+	{
 		for(ClientObserver obs : observers) 
 		{
 			obs.notifyLogout();
@@ -458,7 +450,8 @@ public class ChatGUI extends JFrame implements ClientObservable
 	}
 
 	@Override
-	public void notifyUnregister() {
+	public void notifyUnregister()
+	{
 		for(ClientObserver obs : observers) 
 		{
 			obs.notifyUnregister();
@@ -466,8 +459,11 @@ public class ChatGUI extends JFrame implements ClientObservable
 	}
 
 	@Override
-	public void notifyUserSelection(User u) {
-		// TODO Auto-generated method stub
-		
+	public void notifyUserSelection(User u)
+	{
+		for(ClientObserver obs : observers) 
+		{
+			obs.notifyUserSelection(u);
+		}
 	}
 }
