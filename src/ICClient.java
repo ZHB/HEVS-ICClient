@@ -38,7 +38,7 @@ public class ICClient
     private void init()
     {
     	user = new User();
-    	registredUsers = new HashMap<String, User>();
+    	//registredUsers = new HashMap<String, User>();
     	
     	chatGUI = new ChatGUI();
         chatGUI.addObserver(new ClientNotification());
@@ -141,6 +141,11 @@ public class ICClient
 							e.printStackTrace();
 						}
             			break;
+					case 120: // set the Client ID to the user 
+						String idClient = inputObjectFromServer.readUTF();
+						user.setId(idClient);
+					
+            			break;
             		}
             	}
             } 
@@ -158,17 +163,11 @@ public class ICClient
 		@Override
 		public void notifyMessage(String s)
 		{
-			
-			// create a new conversation for the user
-			//user.createConversation("conv1");
-			
-			// add a message to a conversation
-			//user.setConversation("conv1",  new Message(s));
-			
 			try
 			{
 				outputObjectToServer.writeByte(21); // Send message code
 				outputObjectToServer.writeObject(new Message(s));
+				outputObjectToServer.writeObject(user);
 				outputObjectToServer.flush();
 			}
 			catch (IOException e)
@@ -271,6 +270,7 @@ public class ICClient
 		@Override
 		public void notifyUnregister()
 		{
+			System.out.println("Unregister de: " + user.toString());
 			try 
 			{
 				outputObjectToServer.writeByte(2);

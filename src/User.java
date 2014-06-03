@@ -12,8 +12,8 @@ public class User implements Serializable
 	private static final long serialVersionUID = 7319912117333397675L;
 	private String login;
 	private String pwd;
+	private String id = null;
 	private boolean isConnected = false;
-	private ArrayList<Discussion> discussions;
 	private HashMap<String, ArrayList<Message>> conversations = new HashMap<String, ArrayList<Message>>();
 	
 
@@ -62,13 +62,23 @@ public class User implements Serializable
 		this.login = login;
 	}
 
-	public void addDiscussion(Discussion disc)
-	{
-		discussions.add(disc);
-	}
-	
 	public String getLogin()
 	{
 		return login;
 	}	
+	
+	public void setId(String id)
+	{
+		this.id = id;
+	}
+	
+	public String getId()
+	{
+		return id;
+	}
+	
+	public String toString() {
+		return "Login: " + login + " IsConnected: " + isConnected + " ClientID: " + id;
+		
+	}
 }
