@@ -4,6 +4,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -101,6 +102,7 @@ public class ICClient
 					{
 					case 11: // on login
 						chatGUI.setLoggedInButtons();
+						chatGUI.setTitle("Welcome " + user.getLogin());
             			break;
             			
 					case 12: // on logout
@@ -146,6 +148,18 @@ public class ICClient
 						user.setId(idClient);
 					
             			break;
+					case 121:
+						try {
+							ArrayList<Message> messages = (ArrayList<Message>)inputObjectFromServer.readObject();
+							chatGUI.setTextarea(messages);
+						} 
+						catch (ClassNotFoundException e) 
+						{
+							e.printStackTrace();
+						}
+						
+						
+						break;
             		}
             	}
             } 
@@ -219,12 +233,17 @@ public class ICClient
 		}
 
 		@Override
-		public void notifyDisconnection() {
-			try {
+		public void notifyCloseChat()
+		{
+			try
+			{
+				outputObjectToServer.writeByte(12);
 				outputObjectToServer.close();
 				inputObjectFromServer.close();
 	            serverSocket.close();
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				e.printStackTrace();
 			}
 		}

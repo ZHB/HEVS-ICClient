@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -62,6 +63,7 @@ public class ChatGUI extends JFrame implements ClientObservable
 	  {
 		  this.addWindowListener(new CustomWindowAdapter());
 		  this.buildGUI();
+		  this.setTitle("Welcome visitor");
 	  }
 	  
 	  public void setTextarea(String string) 
@@ -76,6 +78,29 @@ public class ChatGUI extends JFrame implements ClientObservable
 	               txtarea.append("\r\n");
 	           }
 	       });
+	  }
+	  
+	  public void setTextarea(ArrayList<Message> messages) 
+	  {
+		  for(Message m : messages)
+		  {
+   		   txtarea.append(m.getMessage() + "\n");
+   	   	  }
+
+		  /*
+		  final Object finalArg = string;
+
+          SwingUtilities.invokeLater(new Runnable()
+          {
+	           public void run()
+	           {
+	        	   for(Message m : messages) {
+	        		   
+	        	   }
+	               txtarea.append(finalArg.toString());
+	               txtarea.append("\r\n");
+	           }
+	       });*/
 	  }
 	  
 	  public void updateUsersList(HashMap<String, User> users) 
@@ -387,7 +412,7 @@ public class ChatGUI extends JFrame implements ClientObservable
 		// exit the application when window's close button is clicked
 		public void windowClosing(WindowEvent e)
 		{
-			notifyDisconnection();
+			notifyCloseChat();
 			System.exit(0);
 		}
 	}
@@ -423,11 +448,11 @@ public class ChatGUI extends JFrame implements ClientObservable
 	}
 
 	@Override
-	public void notifyDisconnection()
+	public void notifyCloseChat()
 	{
 		for(ClientObserver obs : observers) 
 		{
-			obs.notifyDisconnection();
+			obs.notifyCloseChat();
 		}
 	}
 

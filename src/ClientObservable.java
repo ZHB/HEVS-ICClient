@@ -7,7 +7,7 @@ public interface ClientObservable {
 	
 	public void removeObserver(ClientObserver obs);
 	
-	public void notifyDisconnection();
+	public void notifyCloseChat();
 	
 	public void notifyLogin(String login, String pwd);
 	

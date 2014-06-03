@@ -9,7 +9,7 @@ public interface ClientObserver {
 	
 	public void register(String login, String pwd);
 	
-	public void notifyDisconnection();
+	public void notifyCloseChat();
 	
 	public void notifyUnregister();
 	
