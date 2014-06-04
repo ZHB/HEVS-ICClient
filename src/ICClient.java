@@ -6,19 +6,24 @@ import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 
+import logger.LoggerManager;
 import security.Security;
 
 public class ICClient
 {
-
-    private Socket serverSocket;
     private String servIp = "127.0.0.1";
     private int servPort = 1096;
+    
+    private Socket serverSocket;
     private ObjectOutputStream outputObjectToServer = null;
     private ObjectInputStream inputObjectFromServer = null;
+    
+    private LoggerManager loggerMgr;
+	private Logger logger;
       
     private ChatGUI chatGUI;
     
@@ -51,7 +56,6 @@ public class ICClient
             serverSocket = new Socket(servIp, servPort);
             Thread inOutThread = new Thread(new InOutClient());
             inOutThread.start();
-
         }
     	catch (UnknownHostException e)
     	{
@@ -59,7 +63,9 @@ public class ICClient
         }
     	catch (IOException e)
     	{
+    		System.err.println("host is unreachable. Exit.");
             e.printStackTrace();
+            System.exit(1);
         }
     }
 
@@ -106,6 +112,7 @@ public class ICClient
 					case 12: // on logout
 						chatGUI.setLoggedOffButtons();
 						registredUsers.clear();
+						chatGUI.clearTxtAreaMessages();
 						chatGUI.updateUsersList(registredUsers);
             			break;
             			
@@ -150,7 +157,7 @@ public class ICClient
 					case 121:
 						try {
 							ArrayList<String> messages = (ArrayList<String>)inputObjectFromServer.readObject();
-							chatGUI.updateTextArea(messages);
+							chatGUI.appendTxtAreaMessages(messages);
 						} 
 						catch (ClassNotFoundException e) 
 						{
@@ -163,7 +170,7 @@ public class ICClient
             }
             catch (IOException e)
             {
-            	
+            	e.getMessage();
             }
         }
     }

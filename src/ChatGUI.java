@@ -29,7 +29,7 @@ import javax.swing.text.DefaultCaret;
 
 public class ChatGUI extends JFrame implements ClientObservable
 {
-	  private JTextArea txtarea;
+	  private JTextArea txtAreaMessages;
 	  private JTextField txtMessage;
 	  private ArrayList<ClientObserver> observers = new ArrayList<ClientObserver>();
 	  
@@ -64,17 +64,22 @@ public class ChatGUI extends JFrame implements ClientObservable
           {
 	           public void run()
 	           {
-	               txtarea.append(finalArg.toString());
-	               txtarea.append("\r\n");
+	               txtAreaMessages.append(finalArg.toString());
+	               txtAreaMessages.append("\r\n");
 	           }
 	       });
 	  }
 	  
-	  public void updateTextArea(ArrayList<String> messages) 
+	  public void clearTxtAreaMessages() 
+	  {
+		  txtAreaMessages.setText(null);
+	  }
+	  
+	  public void appendTxtAreaMessages(ArrayList<String> messages) 
 	  {
 		  for(String m : messages)
 		  {
-			  txtarea.append(m + "\r\n");
+			  txtAreaMessages.append(m + "\r\n");
 		  }
 	  }
 	  
@@ -187,19 +192,19 @@ public class ChatGUI extends JFrame implements ClientObservable
         
         pnlCenter.setBackground(new Color(25,162,232));
         
-        txtarea = new JTextArea(20, 50);
-        txtarea.setEditable(false);
-        txtarea.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-        txtarea.setBorder(BorderFactory.createCompoundBorder(
-        		txtarea.getBorder(), 
+        txtAreaMessages = new JTextArea(20, 50);
+        txtAreaMessages.setEditable(false);
+        txtAreaMessages.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+        txtAreaMessages.setBorder(BorderFactory.createCompoundBorder(
+        		txtAreaMessages.getBorder(), 
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         
         // always show the latest message to the textarea
-        DefaultCaret caret = (DefaultCaret)txtarea.getCaret();
+        DefaultCaret caret = (DefaultCaret)txtAreaMessages.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         JScrollPane scrollPaneTextarea = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPaneTextarea.setViewportView(txtarea);
+        scrollPaneTextarea.setViewportView(txtAreaMessages);
         pnlCenter.add(scrollPaneTextarea);
         pnlCenter.add(Box.createHorizontalStrut(10));
         
@@ -305,7 +310,7 @@ public class ChatGUI extends JFrame implements ClientObservable
 			// check if there is at least one user to chat with
 			if(usersList.getSelectedValue() != null) 
 			{
-				txtarea.setText("Discussion avec " + usersList.getSelectedValue() + "\r\n");
+				txtAreaMessages.setText("Discussion avec " + usersList.getSelectedValue() + "\r\n");
 				notifyUserSelection(users.get(usersList.getSelectedValue()));
 			}
 		}

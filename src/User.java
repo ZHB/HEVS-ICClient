@@ -12,7 +12,7 @@ public class User implements Serializable
 	private static final long serialVersionUID = 7319912117333397675L;
 	private String login;
 	private String pwd;
-	private String id = null;
+	private String clientId = null;
 	private boolean isConnected = false;
 	private HashMap<String, ArrayList<String>> conversations = new HashMap<String, ArrayList<String>>();
 	
@@ -77,16 +77,16 @@ public class User implements Serializable
 	
 	public void setId(String id)
 	{
-		this.id = id;
+		this.clientId = id;
 	}
 	
 	public String getId()
 	{
-		return id;
+		return clientId;
 	}
 	
 	public String toString() {
-		return "Login: " + login + " IsConnected: " + isConnected + " ClientID: " + id;
+		return "Login: " + login + " IsConnected: " + isConnected + " ClientID: " + clientId;
 		
 	}
 }
