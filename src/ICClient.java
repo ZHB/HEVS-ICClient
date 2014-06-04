@@ -62,7 +62,6 @@ public class ICClient
     	{
             e.printStackTrace();
         }
-    	
     }
 
     /**
@@ -135,6 +134,7 @@ public class ICClient
 							// update GUI users list only for connected clients
 							if(user.isConnected()) 
 							{
+								registredUsers.remove(user.getLogin());
 								chatGUI.updateUsersList(registredUsers);
 							}
 						}
@@ -150,7 +150,7 @@ public class ICClient
             			break;
 					case 121:
 						try {
-							ArrayList<Message> messages = (ArrayList<Message>)inputObjectFromServer.readObject();
+							ArrayList<String> messages = (ArrayList<String>)inputObjectFromServer.readObject();
 							chatGUI.setTextarea(messages);
 						} 
 						catch (ClassNotFoundException e) 
@@ -158,11 +158,10 @@ public class ICClient
 							e.printStackTrace();
 						}
 						
-						
 						break;
             		}
             	}
-            } 
+            }
             catch (IOException e)
             {
             	
@@ -195,6 +194,7 @@ public class ICClient
 		{
 			try 
 			{
+				
 				// set the user with his login informations
 				user.setLogin(login);
 				user.setPwd(new Security().hashWithSha256(pwd));

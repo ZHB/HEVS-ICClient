@@ -80,11 +80,11 @@ public class ChatGUI extends JFrame implements ClientObservable
 	       });
 	  }
 	  
-	  public void setTextarea(ArrayList<Message> messages) 
+	  public void setTextarea(ArrayList<String> messages) 
 	  {
-		  for(Message m : messages)
+		  for(String m : messages)
 		  {
-   		   txtarea.append(m.getMessage() + "\n");
+   		   txtarea.append(m + "\n");
    	   	  }
 
 		  /*
@@ -329,7 +329,7 @@ public class ChatGUI extends JFrame implements ClientObservable
 			// check if there is at least one user to chat with
 			if(usersList.getSelectedValue() != null) 
 			{
-				txtarea.setText("Discussion avec " + usersList.getSelectedValue());
+				txtarea.setText("Discussion avec " + usersList.getSelectedValue() + "\r\n");
 				notifyUserSelection(users.get(usersList.getSelectedValue()));
 			}
 		}

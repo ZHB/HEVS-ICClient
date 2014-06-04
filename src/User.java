@@ -14,7 +14,7 @@ public class User implements Serializable
 	private String pwd;
 	private String id = null;
 	private boolean isConnected = false;
-	private HashMap<String, ArrayList<Message>> conversations = new HashMap<String, ArrayList<Message>>();
+	private HashMap<String, ArrayList<String>> conversations = new HashMap<String, ArrayList<String>>();
 	
 
 	public User()
@@ -29,16 +29,24 @@ public class User implements Serializable
 	}
 	
 	public void createConversation(String key) {
-		ArrayList<Message> messages = new ArrayList<Message>();
+		ArrayList<String> messages = new ArrayList<String>();
 		conversations.put(key, messages);
 	}
 	
-	public ArrayList<Message> getConversation(String key) {
+	public ArrayList<String> getConversation(String key) {
 		return conversations.get(key);
 	}
 
-	public void setConversation(String key, Message message) {
+	public void setConversation(String key, String message) {
 		conversations.get(key).add(message);
+	}
+	
+	public void removeConversation(String key) {
+		conversations.remove(key);
+	}
+	
+	public HashMap<String, ArrayList<String>> getConversations() {
+		return conversations;
 	}
 	
 	public boolean isConnected() {
