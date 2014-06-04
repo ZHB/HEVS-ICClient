@@ -167,6 +167,8 @@ public class ICClient
 					switch(messageType)
 					{
 					case 11: // on login
+						// save last user connection in a file to load it at startup
+						
 						chatGUI.setLoggedInButtons();
 						chatGUI.setTitle("Welcome " + user.getLogin());
             			break;
