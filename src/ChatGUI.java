@@ -1,20 +1,14 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -33,12 +27,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
 
-//import com.apple.dnssd.TXTRecord;
-
-
 public class ChatGUI extends JFrame implements ClientObservable
 {
-	
 	  private JTextArea txtarea;
 	  private JTextField txtMessage;
 	  private ArrayList<ClientObserver> observers = new ArrayList<ClientObserver>();
@@ -80,32 +70,18 @@ public class ChatGUI extends JFrame implements ClientObservable
 	       });
 	  }
 	  
-	  public void setTextarea(ArrayList<String> messages) 
+	  public void updateTextArea(ArrayList<String> messages) 
 	  {
 		  for(String m : messages)
 		  {
-   		   txtarea.append(m + "\n");
-   	   	  }
-
-		  /*
-		  final Object finalArg = string;
-
-          SwingUtilities.invokeLater(new Runnable()
-          {
-	           public void run()
-	           {
-	        	   for(Message m : messages) {
-	        		   
-	        	   }
-	               txtarea.append(finalArg.toString());
-	               txtarea.append("\r\n");
-	           }
-	       });*/
+			  txtarea.append(m + "\r\n");
+		  }
 	  }
 	  
 	  public void updateUsersList(HashMap<String, User> users) 
 	  {
 		  this.users = users;
+		  
 		  usersList.setListData(this.users.keySet().toArray());
 	  }
 	  

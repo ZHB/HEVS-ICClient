@@ -6,7 +6,6 @@ import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.swing.JFrame;
 
@@ -151,7 +150,7 @@ public class ICClient
 					case 121:
 						try {
 							ArrayList<String> messages = (ArrayList<String>)inputObjectFromServer.readObject();
-							chatGUI.setTextarea(messages);
+							chatGUI.updateTextArea(messages);
 						} 
 						catch (ClassNotFoundException e) 
 						{
@@ -168,7 +167,6 @@ public class ICClient
             }
         }
     }
-    
     
     public class ClientNotification implements ClientObserver
     {

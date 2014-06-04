@@ -1,6 +1,3 @@
-import java.awt.List;
-
-
 public interface ClientObserver {
 	
 	public void login(String login, String pwd);

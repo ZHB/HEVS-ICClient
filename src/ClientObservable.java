@@ -1,6 +1,3 @@
-import java.util.List;
-
-
 public interface ClientObservable {
 	
 	public void addObserver(ClientObserver obs);
