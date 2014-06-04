@@ -326,8 +326,12 @@ public class ChatGUI extends JFrame implements ClientObservable
 	{
 		public void mouseClicked(MouseEvent e)
 		{
-			txtarea.setText("Discussion avec " + usersList.getSelectedValue());
-			notifyUserSelection(users.get(usersList.getSelectedValue()));
+			// check if there is at least one user to chat with
+			if(usersList.getSelectedValue() != null) 
+			{
+				txtarea.setText("Discussion avec " + usersList.getSelectedValue());
+				notifyUserSelection(users.get(usersList.getSelectedValue()));
+			}
 		}
 	}
 		

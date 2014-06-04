@@ -233,22 +233,6 @@ public class ICClient
 		}
 
 		@Override
-		public void notifyCloseChat()
-		{
-			try
-			{
-				outputObjectToServer.writeByte(12);
-				outputObjectToServer.close();
-				inputObjectFromServer.close();
-	            serverSocket.close();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
-
-		@Override
 		public void notifyUserSelection(User u)
 		{
 			try
@@ -273,6 +257,22 @@ public class ICClient
 		}
 
 		@Override
+		public void notifyUnregister()
+		{
+			try 
+			{
+				outputObjectToServer.writeByte(2);
+				//outputObjectToServer.writeObject(user);
+				outputObjectToServer.flush();
+				//outputObjectToServer.reset();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		@Override
 		public void notifyLogout()
 		{
 			try
@@ -285,23 +285,23 @@ public class ICClient
 				e.printStackTrace();
 			}
 		}
-
+		
 		@Override
-		public void notifyUnregister()
+		public void notifyCloseChat()
 		{
-			System.out.println("Unregister de: " + user.toString());
-			try 
+			try
 			{
-				outputObjectToServer.writeByte(2);
-				outputObjectToServer.writeObject(user);
+				outputObjectToServer.writeByte(13);
 				outputObjectToServer.flush();
-				outputObjectToServer.reset();
+				
+				//outputObjectToServer.close();
+				//inputObjectFromServer.close();
+	            //serverSocket.close();
 			}
 			catch (IOException e)
 			{
 				e.printStackTrace();
 			}
 		}
-    	
     }
 }
