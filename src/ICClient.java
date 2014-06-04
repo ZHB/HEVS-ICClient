@@ -246,14 +246,6 @@ public class ICClient
 			{
 				e.printStackTrace();
 			}
-			
-
-			// stocker la liste des tilisateurs s�lectionn�s
-			
-			// v�rifier si fichier de conversation existe
-			
-			// s'il existe, charger le fichier de conversation
-			
 		}
 
 		@Override
@@ -262,9 +254,7 @@ public class ICClient
 			try 
 			{
 				outputObjectToServer.writeByte(2);
-				//outputObjectToServer.writeObject(user);
 				outputObjectToServer.flush();
-				//outputObjectToServer.reset();
 			}
 			catch (IOException e)
 			{
@@ -293,10 +283,6 @@ public class ICClient
 			{
 				outputObjectToServer.writeByte(13);
 				outputObjectToServer.flush();
-				
-				//outputObjectToServer.close();
-				//inputObjectFromServer.close();
-	            //serverSocket.close();
 			}
 			catch (IOException e)
 			{
