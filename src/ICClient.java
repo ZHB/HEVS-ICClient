@@ -66,12 +66,12 @@ public class ICClient
         }
     	catch (UnknownHostException e)
     	{
-    		logger.severe(e.getMessage());
+    		//logger.severe(e.getMessage());
             e.printStackTrace();
         }
     	catch (IOException e)
     	{
-    		logger.severe(e.getMessage());
+    		//logger.severe(e.getMessage());
     		System.err.println("host is unreachable. Exit.");
             e.printStackTrace();
             System.exit(1);
@@ -89,7 +89,7 @@ public class ICClient
 	        if (!toRead.exists())
 	        {
 	        	saveLastUser();
-	        	logger.info("File " + userFilePath + " created");
+	        	//logger.info("File " + userFilePath + " created");
 	        }
 	        FileInputStream fis = new FileInputStream(toRead);
 	        ObjectInputStream ois = new ObjectInputStream(fis);
@@ -99,14 +99,14 @@ public class ICClient
 	        ois.close();
 	        fis.close();
 	        
-	        logger.info("File " + userFilePath + " successfully loaded");
+	        //logger.info("File " + userFilePath + " successfully loaded");
 	        
 	        // Update loggin txtfield with last logged user name on the GUI
 	        chatGUI.setTxtLogin(u.getLogin());
 	    }
 		catch(Exception e)
 		{
-			logger.severe(e.getMessage());
+			//logger.severe(e.getMessage());
 		}
     }
     
@@ -127,7 +127,7 @@ public class ICClient
 		}
         catch (IOException e)
         {
-        	logger.severe(e.getMessage());
+        	//logger.severe(e.getMessage());
 		}
     }
 
@@ -146,7 +146,7 @@ public class ICClient
             }
             catch (IOException e)
             {
-            	logger.severe(e.getMessage());
+            	//logger.severe(e.getMessage());
             	e.printStackTrace();
             }
         }
@@ -228,7 +228,7 @@ public class ICClient
 						} 
 						catch (ClassNotFoundException e) 
 						{
-							logger.severe(e.getMessage());
+							//logger.severe(e.getMessage());
 							e.printStackTrace();
 						}
 						break;
@@ -237,7 +237,7 @@ public class ICClient
             }
             catch (IOException e)
             {
-            	logger.severe(e.getMessage());
+            	//logger.severe(e.getMessage());
             	e.getMessage();
             }
         }
@@ -257,7 +257,7 @@ public class ICClient
 			}
 			catch (IOException e)
 			{
-				logger.severe(e.getMessage());
+				//logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -279,7 +279,7 @@ public class ICClient
 			} 
 			catch (NoSuchAlgorithmException | IOException e) 
 			{
-				logger.severe(e.getMessage());
+				//logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -301,7 +301,7 @@ public class ICClient
 			}
 			catch (NoSuchAlgorithmException | IOException e)
 			{
-				logger.severe(e.getMessage());
+				//logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -318,7 +318,7 @@ public class ICClient
 			}
 			catch (IOException e)
 			{
-				logger.severe(e.getMessage());
+				//logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -333,7 +333,7 @@ public class ICClient
 			}
 			catch (IOException e)
 			{
-				logger.severe(e.getMessage());
+				//logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -341,17 +341,17 @@ public class ICClient
 		@Override
 		public void notifyLogout()
 		{
+			// Register last connected user when log out
+			saveLastUser();
+			
 			try
-			{
-				// Register last connected user when log out
-				saveLastUser();
-				
+			{				
 				outputObjectToServer.writeByte(12); // logout code
 				outputObjectToServer.flush();
 			}
 			catch (IOException e)
 			{
-				logger.severe(e.getMessage());
+				//logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -366,7 +366,7 @@ public class ICClient
 			}
 			catch (IOException e)
 			{
-				logger.severe(e.getMessage());
+				//logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
