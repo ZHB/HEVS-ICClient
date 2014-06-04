@@ -90,6 +90,11 @@ public class ChatGUI extends JFrame implements ClientObservable
 		  usersList.setListData(this.users.keySet().toArray());
 	  }
 	  
+	  public void setTxtLogin(String s)
+	  {
+		  this.txtLogin.setText(s);
+	  }
+	  
 	  public void setLoggedInButtons() 
 	  {
 		  btnConnect.setVisible(false);

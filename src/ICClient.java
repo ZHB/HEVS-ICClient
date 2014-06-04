@@ -1,3 +1,6 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -29,6 +32,8 @@ public class ICClient
     
     private User user;
     
+	private static final String userFilePath = "./data/user.txt";
+    
     // Contains registred users with username as key
     private HashMap<String, User> registredUsers;
     
@@ -50,6 +55,8 @@ public class ICClient
         chatGUI.setVisible(true);
         chatGUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         chatGUI.pack(); 
+        
+        loadLastUser();
     	
     	try 
         {
@@ -59,20 +66,74 @@ public class ICClient
         }
     	catch (UnknownHostException e)
     	{
+    		logger.severe(e.getMessage());
             e.printStackTrace();
         }
     	catch (IOException e)
     	{
+    		logger.severe(e.getMessage());
     		System.err.println("host is unreachable. Exit.");
             e.printStackTrace();
             System.exit(1);
         }
     }
+    
+    /**
+     * Method that load the last logged user
+     */
+    public void loadLastUser()
+    {
+    	try
+		{
+	        File toRead = new File(userFilePath);
+	        if (!toRead.exists())
+	        {
+	        	saveLastUser();
+	        	logger.info("File " + userFilePath + " created");
+	        }
+	        FileInputStream fis = new FileInputStream(toRead);
+	        ObjectInputStream ois = new ObjectInputStream(fis);
+
+	        User u = (User) ois.readObject();
+
+	        ois.close();
+	        fis.close();
+	        
+	        logger.info("File " + userFilePath + " successfully loaded");
+	        
+	        // Update loggin txtfield with last logged user name on the GUI
+	        chatGUI.setTxtLogin(u.getLogin());
+	    }
+		catch(Exception e)
+		{
+			logger.severe(e.getMessage());
+		}
+    }
+    
+    /*
+     * Method that save the last logged user
+     * 
+     */
+    public void saveLastUser()
+    {
+    	try
+        {
+        	FileOutputStream fos = new FileOutputStream(userFilePath);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			
+			oos.writeObject(user);
+			oos.flush();
+			oos.close();
+		}
+        catch (IOException e)
+        {
+        	logger.severe(e.getMessage());
+		}
+    }
 
     /**
      * Internal class that handles input and output stream to server socket of the CLIENT
      * 
-     *
      */
     public class InOutClient implements Runnable
     {
@@ -85,7 +146,8 @@ public class ICClient
             }
             catch (IOException e)
             {
-                e.printStackTrace();
+            	logger.severe(e.getMessage());
+            	e.printStackTrace();
             }
         }
 
@@ -127,12 +189,12 @@ public class ICClient
 						}
 						catch (ClassNotFoundException e2)
 						{
+							logger.severe(e2.getMessage());
 							e2.printStackTrace();
 						}
             			break;
             			
 					case 101: // update users list on change
-						
 						try
 						{
 							registredUsers = (HashMap<String, User>) inputObjectFromServer.readObject();
@@ -146,30 +208,34 @@ public class ICClient
 						}
 						catch (ClassNotFoundException e)
 						{
+							logger.severe(e.getMessage());
 							e.printStackTrace();
 						}
             			break;
+            			
 					case 120: // set the Client ID to the user 
 						String idClient = inputObjectFromServer.readUTF();
 						user.setId(idClient);
-					
             			break;
+            			
 					case 121:
-						try {
+						try
+						{
 							ArrayList<String> messages = (ArrayList<String>)inputObjectFromServer.readObject();
 							chatGUI.appendTxtAreaMessages(messages);
 						} 
 						catch (ClassNotFoundException e) 
 						{
+							logger.severe(e.getMessage());
 							e.printStackTrace();
 						}
-						
 						break;
             		}
             	}
             }
             catch (IOException e)
             {
+            	logger.severe(e.getMessage());
             	e.getMessage();
             }
         }
@@ -177,7 +243,6 @@ public class ICClient
     
     public class ClientNotification implements ClientObserver
     {
-
 		@Override
 		public void notifyMessage(String s)
 		{
@@ -190,6 +255,7 @@ public class ICClient
 			}
 			catch (IOException e)
 			{
+				logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -199,7 +265,6 @@ public class ICClient
 		{
 			try 
 			{
-				
 				// set the user with his login informations
 				user.setLogin(login);
 				user.setPwd(new Security().hashWithSha256(pwd));
@@ -212,6 +277,7 @@ public class ICClient
 			} 
 			catch (NoSuchAlgorithmException | IOException e) 
 			{
+				logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -233,6 +299,7 @@ public class ICClient
 			}
 			catch (NoSuchAlgorithmException | IOException e)
 			{
+				logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -249,6 +316,7 @@ public class ICClient
 			}
 			catch (IOException e)
 			{
+				logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -263,6 +331,7 @@ public class ICClient
 			}
 			catch (IOException e)
 			{
+				logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -272,11 +341,15 @@ public class ICClient
 		{
 			try
 			{
+				// Register last connected user when log out
+				saveLastUser();
+				
 				outputObjectToServer.writeByte(12); // logout code
 				outputObjectToServer.flush();
 			}
 			catch (IOException e)
 			{
+				logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -291,6 +364,7 @@ public class ICClient
 			}
 			catch (IOException e)
 			{
+				logger.severe(e.getMessage());
 				e.printStackTrace();
 			}
 		}
